@@ -7,27 +7,24 @@ import (
 )
 
 type pongActor struct {
-	name    string
-	mailbox chan any
-}
-
-func (a *pongActor) Name() string {
-	return a.name
-}
-
-func (a *pongActor) Send(msg any) {
-	a.mailbox <- msg
+	actor.BaseActor
 }
 
 func (a *pongActor) Start() {
-	for msg := range a.mailbox {
+	for msg := range a.Mailbox {
 		fmt.Println("PONG. Get msg:", msg)
 	}
 }
 
+func (a *pongActor) PreStart() {
+
+}
+
 func NewPongActor(name string) actor.ActorRef {
 	return &pongActor{
-		name:    name,
-		mailbox: make(chan any),
+		BaseActor: actor.BaseActor{
+			Name:    name,
+			Mailbox: make(chan any),
+		},
 	}
 }

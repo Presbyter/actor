@@ -8,24 +8,16 @@ import (
 )
 
 type pingActor struct {
-	mailbox chan any
-	state   struct {
-		name string
-	}
-}
-
-func (a *pingActor) Name() string {
-	if a.state.name == "" {
-		a.state.name = "ping"
-	}
-	return a.state.name
+	actor.BaseActor
+	mailbox chan string
 }
 
 func (a *pingActor) Send(msg any) {
-	if a.mailbox == nil {
-		a.mailbox = make(chan any)
+	v, ok := msg.(string)
+	if !ok {
+		return
 	}
-	a.mailbox <- msg
+	a.mailbox <- v
 }
 
 func (a *pingActor) Start() {
@@ -43,9 +35,13 @@ func (a *pingActor) Start() {
 	}
 }
 
+func (a *pingActor) PreStart() {
+
+}
+
 func NewPingActor(name string) actor.ActorRef {
 	return &pingActor{
-		mailbox: make(chan any),
-		state:   struct{ name string }{name: name},
+		BaseActor: actor.BaseActor{Name: name, Mailbox: make(chan any)},
+		mailbox:   make(chan string),
 	}
 }

@@ -7,11 +7,13 @@ type User struct {
 
 func (u *User) RegisterActor(actors ...ActorRef) {
 	for _, actor := range actors {
-		name := actor.Name()
+		name := actor.GetName()
 		if _, ok := u.actors[name]; ok {
 			continue
 		}
 		u.actors[name] = actor
+		actor.SetUser(u)
+		actor.PreStart()
 		go actor.Start()
 	}
 }

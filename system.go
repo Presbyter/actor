@@ -5,8 +5,9 @@ import (
 )
 
 type System struct {
-	name  string
-	users map[string]*User
+	name     string
+	users    map[string]*User
+	eventbus chan any
 }
 
 func (s *System) RegisterUser(users ...*User) {
@@ -36,7 +37,10 @@ func (s *System) GetActor(path string) ActorRef {
 }
 
 func NewSystem(name string, opts ...ConfigOption) *System {
-	s := &System{name: name, users: make(map[string]*User)}
+	s := &System{name: name,
+		users:    make(map[string]*User),
+		eventbus: make(chan any),
+	}
 	for _, opt := range opts {
 		opt(s)
 	}
@@ -78,4 +82,22 @@ func init() {
 func GetSystem(name string) (*System, bool) {
 	v, ok := systemAgent[name]
 	return v, ok
+}
+
+func GetActor(path string) (ActorRef, bool) {
+	arr := strings.SplitN(path, "/", 3)
+	systemName, userName, actorName := arr[0], arr[1], arr[2]
+	s, ok := GetSystem(systemName)
+	if !ok {
+		return nil, ok
+	}
+	u := s.GetUser(userName)
+	if u == nil {
+		return nil, false
+	}
+	a := u.GetActor(actorName)
+	if a == nil {
+		return nil, false
+	}
+	return a, true
 }
