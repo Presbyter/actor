@@ -5,15 +5,18 @@ import (
 )
 
 type System struct {
-	name     string
-	users    map[string]*User
-	eventbus chan any
+	name  string
+	users map[string]*User
 }
 
 func (s *System) RegisterUser(users ...*User) {
 	for _, user := range users {
 		name := user.name
+		if _, ok := s.users[name]; ok {
+			continue
+		}
 		s.users[name] = user
+		user.System = s
 	}
 }
 
@@ -38,9 +41,14 @@ func (s *System) GetActor(path string) ActorRef {
 
 func NewSystem(name string, opts ...ConfigOption) *System {
 	s := &System{name: name,
-		users:    make(map[string]*User),
-		eventbus: make(chan any),
+		users: make(map[string]*User),
 	}
+
+	// internal actors
+	internal := NewUser("internal")
+	internal.RegisterActor(NewEventbusActor("eventbus"))
+	s.RegisterUser(internal)
+
 	for _, opt := range opts {
 		opt(s)
 	}

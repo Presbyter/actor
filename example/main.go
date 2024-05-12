@@ -14,7 +14,7 @@ func main() {
 		actor.WithActor("user1", actors.NewPongActor("pong")),
 	)
 
-	arr := []string{"1", "2", "3"}
+	arr := []string{"1", "2", "3", "4", "5", "6"}
 	for _, v := range arr {
 		a := actorSystem.GetActor("user1/ping")
 		if a == nil {

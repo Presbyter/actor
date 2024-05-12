@@ -3,6 +3,7 @@ package actor
 type User struct {
 	name   string
 	actors map[string]ActorRef
+	System *System
 }
 
 func (u *User) RegisterActor(actors ...ActorRef) {
@@ -24,6 +25,10 @@ func (u *User) GetActor(name string) ActorRef {
 		return nil
 	}
 	return v
+}
+
+func (u *User) setSystem(s *System) {
+	u.System = s
 }
 
 func NewUser(name string) *User {
