@@ -37,3 +37,44 @@ func (a *BaseActor) PreStart() {
 func (a *BaseActor) SetUser(user *User) {
 	a.User = user
 }
+
+// ------------------------------------------------------------------
+
+type Event[T any] struct {
+	From    string
+	To      string
+	Forward string
+	Data    T
+}
+
+func (e *Event[T]) GetData() T {
+	return e.Data
+}
+
+func NewEvent[T any](data T, opts ...EventOption[T]) Event[T] {
+	e := Event[T]{Data: data}
+	for _, opt := range opts {
+		opt(&e)
+	}
+	return e
+}
+
+type EventOption[T any] func(*Event[T])
+
+func WithFrom[T any](from string) EventOption[T] {
+	return func(e *Event[T]) {
+		e.From = from
+	}
+}
+
+func WithTo[T any](to string) EventOption[T] {
+	return func(e *Event[T]) {
+		e.To = to
+	}
+}
+
+func WithForward[T any](forward string) EventOption[T] {
+	return func(e *Event[T]) {
+		e.Forward = forward
+	}
+}
